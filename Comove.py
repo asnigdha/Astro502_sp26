@@ -1229,6 +1229,8 @@ def findfriends(targname,radial_velocity,velocity_limit=5.0,search_radius=25.0,r
     sortlist = np.argsort(sep3d[zz])
     yy = zz[0][sortlist]
 
+    #txt and csv files
+
     fmt1 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %8.3f %8.3f %11.3f %11.3f"
     fmt2 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %8.3f %8.3f %11.3f %11.3f"
     filename=outdir + targname.replace(" ", "") + ".txt"
