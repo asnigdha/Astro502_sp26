@@ -173,6 +173,8 @@ def findfriends(targname,radial_velocity,velocity_limit=5.0,search_radius=25.0,r
 
     job = Gaia.launch_job_async(sqltext , dump_to_file=False)
     r = job.get_results()
+
+    #print(r.columns)
    
     if verbose == True: print('Number of records: ',len(r['ra']))
     
@@ -1231,17 +1233,18 @@ def findfriends(targname,radial_velocity,velocity_limit=5.0,search_radius=25.0,r
 
     #txt and csv files
 
-    fmt1 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %8.3f %8.3f %11.3f %11.3f"
-    fmt2 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %8.3f %8.3f %11.3f %11.3f"
+    fmt1 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %11.3f %11.3f %11.3f %11.3f %11.3f %11.3f"
+    fmt2 = "%28s %11.7f %11.7f %6.3f %6.3f %11.3f %8.4f %8.4f %8.2f %8.2f %8.2f %8.3f %4s %8.6f %6.2f %7.3f %7.3f %35s %11.3f %11.3f %11.3f %11.3f %11.3f %11.3f"
     filename=outdir + targname.replace(" ", "") + ".txt"
     
     warnings.filterwarnings("ignore",category=UserWarning)
     if verbose == True: 
         print('Also creating SIMBAD query table')
         print(filename)
-        print('GaiaDR3                               RA         DEC   Gmag  Bp-Rp  Voff(km/s) Sep(deg)   3D(pc) Vr(pred)  Vr(obs)    Vrerr Plx(mas)  SpT    FnuvJ  W1-W3    RUWE  XCrate                               RVsrc     PMRA    PMDec    PMRApred   PMDecpred\n')
+        print('GaiaDR3                               RA         DEC   Gmag  Bp-Rp  Voff(km/s) Sep(deg)   3D(pc) Vr(pred)  Vr(obs)    Vrerr Plx(mas)  SpT    FnuvJ  W1-W3    RUWE  XCrate                               RVsrc    PMRApred   PMDecpred        PMRA     PMRAerr       PMDec    PMDecerr \n')
     with open(filename,'w') as file1:
-        file1.write('GaiaDR3                               RA         DEC   Gmag  Bp-Rp  Voff(km/s) Sep(deg)   3D(pc) Vr(pred)  Vr(obs)    Vrerr Plx(mas)  SpT    FnuvJ  W1-W3    RUWE  XCrate                               RVsrc     PMRA    PMDec    PMRApred   PMDecpred\n')
+        file1.write('GaiaDR3                               RA         DEC   Gmag  Bp-Rp  Voff(km/s) Sep(deg)   3D(pc) Vr(pred)  Vr(obs)    Vrerr Plx(mas)  SpT    FnuvJ  W1-W3    RUWE  XCrate                               RVsrc    PMRApred   PMDecpred        PMRA     PMRAerr       PMDec    PMDecerr \n')
+
     for x in range(0 , np.array(zz).size):
             if verbose == True:
                 print(fmt1 % (r['designation'][yy[x]],gaiacoord.ra[yy[x]].value,gaiacoord.dec[yy[x]].value, \
@@ -1260,11 +1263,27 @@ def findfriends(targname,radial_velocity,velocity_limit=5.0,search_radius=25.0,r
                       r['parallax'][yy[x]], \
                       sptstring[yy[x]] , fnuvj[yy[x]] , W13[yy[x]] , r['ruwe'][yy[x]] , ROSATflux[yy[x]] , RVsrc[yy[x]],\
                         Gpmrapmdec[yy[x],0], Gpmrapmdec[yy[x],1], \
-                        gaiacoord.pm_ra_cosdec.value[yy[x]], gaiacoord.pm_dec.value[yy[x]]))
+                        gaiacoord.pm_ra_cosdec.value[yy[x]], r['pmra_error'][yy[x]], gaiacoord.pm_dec.value[yy[x]], r['pmdec_error'][yy[x]]))
                   file1.write("\n")
 
     csv_filename = outdir + targname.replace(" ", "") + ".csv"
-    csv_file = pd.read_csv(filename, sep='\s+')
+
+    # 1. Read the first line only to see the original headers
+    original_headers = pd.read_csv(filename, sep='\s+', nrows=0).columns.tolist()
+
+    # 2. Create a new list of names that adds slots for 'Gaia', 'DR3', and the 'ID'
+    # This brings the total count from 24 to 27
+    new_names = ['Catalog', 'Type'] + original_headers
+
+    # 3. Read the file skipping the original header row (skiprows=1)
+    csv_file = pd.read_csv(
+        filename, 
+        sep='\s+', 
+        names=new_names, 
+        skiprows=1, 
+        index_col=False
+    )
+
     csv_file.to_csv(csv_filename, index=False)
     
     # with open(filename,mode='w') as result_file:
