@@ -6,7 +6,7 @@ import pandas as pd
 import os
 import shutil
 
-# #functions
+#functions
 
 #function to rename file
 def rename_file(star_name, full_directory_location, filename, gaia_id):
@@ -41,8 +41,8 @@ ra = data['ra']
 dec = data['dec']
 rv = data['st_rv']
 err_rv =  data['st_e_rv']
-6
-i = 505
+
+i = 981
 targname = gaia_id[i]
 print(hostname[i])
 #print('RV: ' + str(rv[i]))
@@ -83,5 +83,6 @@ rename_directory(hostname[i], output_location, gaia_id[i])
 print('Part 1 Done!')
 
 #Cuts
+
 
 #calculate error
