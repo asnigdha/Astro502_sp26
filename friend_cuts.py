@@ -20,10 +20,18 @@ def simpleCut(filepath, sigma, singlefile=False):
     PMRAerr = star_csv['PMRAerr']
     PMDec = star_csv['PMDec']
     PMDecerr = star_csv['PMDecerr']
+    Vrpred = star_csv['Vr(pred)']
+    Vrobs = star_csv['Vr(obs)']
+    Vrerr = star_csv['Vrerr']
+    RVsrc = star_csv['RVsrc']
+
 
     #used help from https://stackoverflow.com/questions/29725932/deleting-rows-with-python-in-a-csv-file
-    star_csv = star_csv[abs(star_csv.PMRApred - star_csv.PMRA)/star_csv.PMRAerr < sigma] #3 is arbitrary
-    star_csv = star_csv[abs(star_csv.PMDecpred - star_csv.PMDec)/star_csv.PMDecerr < sigma]
+    star_csv = star_csv[abs(PMRApred - PMRA)/PMRAerr < sigma] #3 is arbitrary
+    star_csv = star_csv[abs(PMDecpred - PMDec)/PMDecerr < sigma]
+
+    #radial velocity cuts
+    star_csv = star_csv[(abs(Vrpred - Vrobs)/Vrerr < sigma) | RVsrc.isna()]
 
     if (singlefile==True):
         file = f"./{hostname}_friends/{hostname}_cut.csv"
@@ -54,13 +62,47 @@ def sortStar(directory, comovingFolder, otherFolder, howMany=1):
                 new_path = comovingFolder / filepath.name
                 filepath.rename(new_path)
 
+#works for EACH star aka row in the csv
+def rankStar(star):
+    print(star)
+    p = 0
+    #check conditions
+    # if (star['']):
+    #     p+=1
+    # if ():
+    #     p+=1
+    # if ():
+    #     p+=1
+    return p
+
+def rankCSV(CSV, singlefile=False):
+
+    points = []
+    star_csv = pd.read_csv(filepath)
+
+    #iterate through csv rows and store point values
+    for i, star in star_csv.iterrows():
+        p = rankStar(star)
+        points.append()
+    #sort rows
+    star_csv.sort_values(by='points', ascending=False)
+
+    #save file
+    if (singlefile==True):
+        file = f"./{hostname}_friends/{hostname}_rank.csv"
+        star_csv.to_csv(file, index=False)
+    else:
+        file = f"./FindFriends_rank/{hostname}_rank.csv"
+        star_csv.to_csv(file, index=False)
+    
+
 def main():
 
     cuts_folder = Path(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\FindFriends_cuts')
     cuts_folder.mkdir(parents=True, exist_ok=True)
 
     # # NOTE: replace path for ur code
-    # problem = CutCSVs(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\ALL_CSVS')
+    problem = CutCSVs(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\ALL_CSVS')
     # print(problem)
 
     # create sort folders (Gemini + me)
@@ -80,11 +122,14 @@ def main():
     sortStar(cuts_folder, comoving_folder, single_folder)
     print('Stars Sorted 1 Time!')
 
+    #ranks
+    rank_folder = Path(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\FindFriends_rank')
+    rank_folder.mkdir(parents=True, exist_ok=True)
+
     #other cuts
 
     #sort again
 
     #etc
 
-
-main()
+#main()
