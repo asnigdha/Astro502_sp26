@@ -63,29 +63,42 @@ def sortStar(directory, comovingFolder, otherFolder, howMany=1):
                 filepath.rename(new_path)
 
 #works for EACH star aka row in the csv
-def rankStar(star):
-    print(star)
+def rankStar(star, sigma, i):
+
+    PMRApred = star['PMRApred']
+    PMDecpred = star['PMDecpred']
+    PMRA = star['PMRA']
+    PMRAerr = star['PMRAerr']
+    PMDec = star['PMDec']
+    PMDecerr = star['PMDecerr']
+    Vrpred = star['Vr(pred)']
+    Vrobs = star['Vr(obs)']
+    Vrerr = star['Vrerr']
+    RVsrc = star['RVsrc']
+
     p = 0
     #check conditions
-    # if (star['']):
-    #     p+=1
-    # if ():
-    #     p+=1
-    # if ():
-    #     p+=1
+    if (abs(PMRApred - PMRA)/PMRAerr < sigma):
+        p+=1
+    if (abs(PMDecpred - PMDec)/PMDecerr < sigma):
+        p+=1
+    if ((abs(Vrpred - Vrobs)/Vrerr < sigma) | (pd.notna(RVsrc))):
+        p+=1
     return p
 
-def rankCSV(CSV, singlefile=False):
-
+def rankCSV(filepath, singlefile=False):
     points = []
+    hostname = Path(filepath).stem
     star_csv = pd.read_csv(filepath)
 
     #iterate through csv rows and store point values
     for i, star in star_csv.iterrows():
-        p = rankStar(star)
-        points.append()
+        p = rankStar(star, 3, i)
+        points.append(p)
     #sort rows
-    star_csv.sort_values(by='points', ascending=False)
+    print(points)
+    star_csv['rank_score'] = points #gemini, debug
+    star_csv = star_csv.sort_values(by='rank_score', ascending=False)
 
     #save file
     if (singlefile==True):
@@ -94,7 +107,7 @@ def rankCSV(CSV, singlefile=False):
     else:
         file = f"./FindFriends_rank/{hostname}_rank.csv"
         star_csv.to_csv(file, index=False)
-    
+
 
 def main():
 
@@ -102,13 +115,14 @@ def main():
     cuts_folder.mkdir(parents=True, exist_ok=True)
 
     # # NOTE: replace path for ur code
-    problem = CutCSVs(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\ALL_CSVS')
+    problem = CutCSVs(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\ALL_CSVS(3-30-180)')
     # print(problem)
 
     # create sort folders (Gemini + me)
     # 1. Define your path
     # Use 'r' before the string to handle Windows backslashes correctly
     single_folder = cuts_folder / 'singleStars'
+    #some_folder = cuts_folder / 'someStars'
     comoving_folder = cuts_folder / 'comovingStars'
 
     # 2. Create the directory
@@ -118,13 +132,16 @@ def main():
 
     print(f"Directory created at: {single_folder}")
     print(f"Directory created at: {comoving_folder}")
+    #print(f'Directory created at: {cuts_folder}')
 
-    sortStar(cuts_folder, comoving_folder, single_folder)
+    sortStar(cuts_folder, comoving_folder, single_folder) #when working, add some_folder
     print('Stars Sorted 1 Time!')
 
     #ranks
     rank_folder = Path(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\FindFriends_rank')
     rank_folder.mkdir(parents=True, exist_ok=True)
+
+    rankCSV(r'C:\Users\Snigdha\Documents\college\2025-2026\ASTR502\Comove\ALL_CSVS(3-30-180)')
 
     #other cuts
 
@@ -132,4 +149,4 @@ def main():
 
     #etc
 
-#main()
+main()
