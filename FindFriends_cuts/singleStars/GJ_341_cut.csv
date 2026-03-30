@@ -1,0 +1,2 @@
+Catalog,Type,GaiaDR3,RA,DEC,Gmag,Bp-Rp,Voff(km/s),Sep(deg),3D(pc),Vr(pred),Vr(obs),Vrerr,Plx(mas),SpT,FnuvJ,W1-W3,RUWE,XCrate,RVsrc,PMRApred,PMDecpred,PMRA,PMRAerr,PMDec,PMDecerr
+Gaia,DR3,5299440441521812992,140.3991405,-60.2811439,8.681,2.023,0.0,0.0,0.0,39.59,39.59,0.14,95.698,,,,1.021,,Gaia_DR3,-840.185,182.056,-840.185,0.017,182.056,0.017
